@@ -40,3 +40,14 @@ test('serves the English locale under /en', async ({ page }) => {
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Tenhou Gacha');
 	await expect(page.getByRole('button', { name: 'Deal' })).toBeVisible();
 });
+
+test('switches the locale from the footer link', async ({ page }) => {
+	await page.goto('/');
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText('天和ガチャ');
+
+	await page.getByRole('link', { name: 'English' }).click();
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Tenhou Gacha');
+
+	await page.getByRole('link', { name: '日本語' }).click();
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText('天和ガチャ');
+});

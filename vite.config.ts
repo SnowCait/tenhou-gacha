@@ -23,7 +23,7 @@ export default defineConfig({
 		paraglideVitePlugin({
 			project: './project.inlang',
 			outdir: './src/lib/paraglide',
-			strategy: ['url', 'cookie', 'baseLocale']
+			strategy: ['url', 'baseLocale']
 		})
 	],
 	test: {

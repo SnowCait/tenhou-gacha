@@ -24,6 +24,7 @@
 				href={resolve(localizeHref(page.url.pathname, { locale }) as Pathname)}
 				class="hover:text-emerald-50/80"
 				class:underline={locale === getLocale()}
+				data-sveltekit-reload
 			>
 				{localeNames[locale] ?? locale}
 			</a>
