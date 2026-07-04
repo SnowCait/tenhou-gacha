@@ -1,4 +1,4 @@
-import init, { deal, simulate } from '$lib/wasm/pkg/tenhou_sim';
+import init, { deal, evaluate, simulate } from '$lib/wasm/pkg/tenhou_sim';
 import wasmUrl from '$lib/wasm/pkg/tenhou_sim_bg.wasm?url';
 import { MAX_DEALS, type SimRequest, type SimResponse, type SimulationMode } from './protocol';
 
@@ -79,6 +79,13 @@ self.onmessage = async (event: MessageEvent<SimRequest>) => {
 				const result = deal(randomSeed());
 				post({ type: 'dealt', tiles: Array.from(result.tiles), shanten: result.shanten });
 				result.free();
+				break;
+			}
+			case 'evaluate': {
+				await ready;
+				const tiles = [...message.tiles].sort((a, b) => a - b);
+				const shanten = evaluate(Uint8Array.from(tiles));
+				post({ type: 'dealt', tiles, shanten });
 				break;
 			}
 			case 'start': {

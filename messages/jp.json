@@ -3,7 +3,7 @@
 	"app_title": "天和ガチャ",
 	"deal_button": "配牌",
 	"engine_loading": "準備中…",
-	"shanten_win": "天和!!",
+	"shanten_win": "天和！！",
 	"shanten_tenpai": "聴牌",
 	"shanten_n": "{n}向聴",
 	"sim_title": "配牌を繰り返す",
@@ -24,6 +24,13 @@
 	"more_hands": "ほか {n} 件",
 	"sim_stopped": "停止しました",
 	"sim_no_tenhou": "天和は出ませんでした…",
-	"sim_tenhou_found": "天和が出ました!",
-	"error_prefix": "エラー: "
+	"sim_tenhou_found": "天和が出ました！",
+	"error_prefix": "エラー: ",
+	"share_on_x": "Xでポスト",
+	"share_native": "共有",
+	"share_copy": "コピー",
+	"share_copied": "コピーしました",
+	"share_deal_text": "天和ガチャの結果は「{result}」でした！ {hand} #天和ガチャ",
+	"share_sim_tenhou_text": "{deals}回配牌して天和{tenhou}回！ {hand} #天和ガチャ",
+	"share_sim_text": "{deals}回配牌したけど天和は出ませんでした… #天和ガチャ"
 }

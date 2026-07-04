@@ -3,8 +3,12 @@ export type SimulationMode = 'untilWin' | 'fixed';
 /** Hard cap on total deals per run, also used as the "until win" safety limit. */
 export const MAX_DEALS = 100_000_000;
 
+/** 'evaluate' scores a given 14-tile hand (e.g. from a share URL) and responds with 'dealt'. */
 export type SimRequest =
-	{ type: 'deal' } | { type: 'start'; mode: SimulationMode; maxDeals: number } | { type: 'stop' };
+	| { type: 'deal' }
+	| { type: 'evaluate'; tiles: number[] }
+	| { type: 'start'; mode: SimulationMode; maxDeals: number }
+	| { type: 'stop' };
 
 export interface SimStats {
 	deals: number;

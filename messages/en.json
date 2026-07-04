@@ -25,5 +25,12 @@
 	"sim_stopped": "Stopped",
 	"sim_no_tenhou": "No tenhou this time…",
 	"sim_tenhou_found": "Tenhou!",
-	"error_prefix": "Error: "
+	"error_prefix": "Error: ",
+	"share_on_x": "Post on X",
+	"share_native": "Share",
+	"share_copy": "Copy",
+	"share_copied": "Copied!",
+	"share_deal_text": "My starting hand: {hand} — {result} #TenhouGacha",
+	"share_sim_tenhou_text": "{deals} deals, {tenhou} tenhou! {hand} #TenhouGacha",
+	"share_sim_text": "{deals} deals, no tenhou this time… #TenhouGacha"
 }

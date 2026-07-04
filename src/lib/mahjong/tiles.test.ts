@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { NUM_TILE_KINDS, tileFileName, tileLabel, toMpsz } from './tiles';
+import {
+	NUM_TILE_KINDS,
+	fromMpsz,
+	parseHandMpsz,
+	tileFileName,
+	tileLabel,
+	toEmoji,
+	toMpsz
+} from './tiles';
 
 describe('tileFileName', () => {
 	it('maps suit boundaries to the right images', () => {
@@ -41,5 +49,67 @@ describe('toMpsz', () => {
 	it('omits empty suits', () => {
 		expect(toMpsz([9, 10, 11])).toBe('123p');
 		expect(toMpsz([])).toBe('');
+	});
+});
+
+describe('fromMpsz', () => {
+	it('round-trips with toMpsz', () => {
+		const hand = [0, 1, 2, 12, 13, 14, 24, 25, 26, 27, 27, 28, 28, 28];
+		expect(fromMpsz('123m456p789s11222z')).toEqual(hand);
+		expect(fromMpsz(toMpsz(hand))).toEqual(hand);
+	});
+
+	it('parses partial hands and sorts', () => {
+		expect(fromMpsz('123p')).toEqual([9, 10, 11]);
+		expect(fromMpsz('12z321m')).toEqual([0, 1, 2, 27, 28]);
+	});
+
+	it('rejects malformed text', () => {
+		expect(fromMpsz('')).toBeNull();
+		expect(fromMpsz('123')).toBeNull();
+		expect(fromMpsz('0m')).toBeNull();
+		expect(fromMpsz('8z')).toBeNull();
+		expect(fromMpsz('12x3m')).toBeNull();
+		expect(fromMpsz('1M')).toBeNull();
+		expect(fromMpsz('1m ')).toBeNull();
+	});
+});
+
+describe('parseHandMpsz', () => {
+	it('accepts a full 14-tile hand', () => {
+		expect(parseHandMpsz('123m456p789s11222z')).toEqual([
+			0, 1, 2, 12, 13, 14, 24, 25, 26, 27, 27, 28, 28, 28
+		]);
+	});
+
+	it('rejects hands that are not exactly 14 tiles', () => {
+		expect(parseHandMpsz('123m456p789s1122z')).toBeNull();
+		expect(parseHandMpsz('123m456p789s112222z')).toBeNull();
+	});
+
+	it('rejects more than four of a kind', () => {
+		expect(parseHandMpsz('11111m222z456789p')).toBeNull();
+	});
+});
+
+describe('toEmoji', () => {
+	it('maps suit boundaries to the right characters', () => {
+		expect(toEmoji([0])).toBe('🀇');
+		expect(toEmoji([8])).toBe('🀏');
+		expect(toEmoji([9])).toBe('🀙');
+		expect(toEmoji([18])).toBe('🀐');
+		expect(toEmoji([27])).toBe('🀀');
+		expect(toEmoji([31])).toBe('🀆');
+		expect(toEmoji([32])).toBe('🀅');
+		expect(toEmoji([33])).toBe('🀄');
+	});
+
+	it('formats a winning hand sorted', () => {
+		expect(toEmoji([28, 27, 0, 1, 2, 12, 13, 14, 24, 25, 26, 27, 28, 28])).toBe('🀇🀈🀉🀜🀝🀞🀖🀗🀘🀀🀀🀁🀁🀁');
+	});
+
+	it('rejects out-of-range kinds', () => {
+		expect(() => toEmoji([-1])).toThrow(RangeError);
+		expect(() => toEmoji([NUM_TILE_KINDS])).toThrow(RangeError);
 	});
 });
