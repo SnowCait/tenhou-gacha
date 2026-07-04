@@ -1,13 +1,11 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"app_title": "天和ガチャ",
-	"app_tagline": "約33万分の1の奇跡を引き当てろ",
 	"deal_button": "配牌",
 	"engine_loading": "準備中…",
 	"shanten_win": "天和!!",
 	"shanten_tenpai": "聴牌",
 	"shanten_n": "{n}向聴",
-	"tenhou_overlay_note": "親の配牌14枚で和了。役満!",
 	"sim_title": "配牌を繰り返す",
 	"mode_until_win": "天和になるまで",
 	"mode_fixed": "指定回数まで",

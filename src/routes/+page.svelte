@@ -136,7 +136,6 @@
 
 <svelte:head>
 	<title>{m.app_title()}</title>
-	<meta name="description" content={m.app_tagline()} />
 </svelte:head>
 
 <main class="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10">
@@ -144,7 +143,6 @@
 		<h1 class="font-display text-5xl font-bold tracking-wide text-gold-200 sm:text-6xl">
 			{m.app_title()}
 		</h1>
-		<p class="mt-3 text-emerald-50/70">{m.app_tagline()}</p>
 	</header>
 
 	{#if errorMessage}

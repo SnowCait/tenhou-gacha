@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages.js';
-
 	let { onclose }: { onclose: () => void } = $props();
 
 	const CONFETTI_COLORS = ['#f2d67e', '#e8c052', '#d3a83c', '#ffffff', '#d43a3a'];
@@ -46,7 +44,6 @@
 	>
 		天和
 	</span>
-	<span class="text-lg text-emerald-50/90">{m.tenhou_overlay_note()}</span>
 </button>
 
 <style>

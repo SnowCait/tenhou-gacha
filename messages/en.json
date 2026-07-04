@@ -1,13 +1,11 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"app_title": "Tenhou Gacha",
-	"app_tagline": "Chase the 1-in-330,000 miracle",
 	"deal_button": "Deal",
 	"engine_loading": "Loading…",
 	"shanten_win": "Tenhou!!",
 	"shanten_tenpai": "Tenpai",
 	"shanten_n": "{n} shanten",
-	"tenhou_overlay_note": "A winning hand on the dealer's first 14 tiles. Yakuman!",
 	"sim_title": "Repeat deals",
 	"mode_until_win": "Until tenhou",
 	"mode_fixed": "Fixed count",
