@@ -1,1 +1,21 @@
 @import 'tailwindcss';
+
+@theme {
+	--color-felt-950: #071710;
+	--color-felt-900: #0b241d;
+	--color-felt-800: #14352a;
+	--color-felt-700: #1c4636;
+	--color-felt-600: #275a46;
+	--color-gold-200: #f2d67e;
+	--color-gold-300: #e8c052;
+	--color-gold-400: #d3a83c;
+	--color-gold-500: #ab8226;
+	--font-display: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', serif;
+}
+
+body {
+	@apply bg-felt-900 text-emerald-50;
+	background-image: radial-gradient(ellipse at 50% -20%, var(--color-felt-700), transparent 60%);
+	background-attachment: fixed;
+	min-height: 100dvh;
+}

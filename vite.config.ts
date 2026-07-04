@@ -5,6 +5,10 @@ import { playwright } from '@vitest/browser-playwright';
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 
+// Overrides the browser binary in environments where Playwright cannot
+// download its own (e.g. sandboxed CI).
+const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
+
 export default defineConfig({
 	plugins: [
 		tailwindcss(),
@@ -16,7 +20,11 @@ export default defineConfig({
 			},
 			adapter: adapter()
 		}),
-		paraglideVitePlugin({ project: './project.inlang', outdir: './src/lib/paraglide' })
+		paraglideVitePlugin({
+			project: './project.inlang',
+			outdir: './src/lib/paraglide',
+			strategy: ['url', 'cookie', 'baseLocale']
+		})
 	],
 	test: {
 		expect: { requireAssertions: true },
@@ -27,7 +35,9 @@ export default defineConfig({
 					name: 'client',
 					browser: {
 						enabled: true,
-						provider: playwright(),
+						provider: playwright(
+							chromiumPath ? { launchOptions: { executablePath: chromiumPath } } : {}
+						),
 						instances: [{ browser: 'chromium', headless: true }]
 					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
