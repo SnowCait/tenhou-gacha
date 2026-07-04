@@ -81,6 +81,30 @@ pub fn deal(seed: u64) -> DealResult {
     }
 }
 
+fn evaluate_hand(tiles: &[u8]) -> Result<i8, String> {
+    if tiles.len() != HAND_SIZE {
+        return Err(format!("expected {HAND_SIZE} tiles, got {}", tiles.len()));
+    }
+    let mut counts = [0u8; NUM_KINDS];
+    for &tile in tiles {
+        let kind = tile as usize;
+        if kind >= NUM_KINDS {
+            return Err(format!("invalid tile kind: {tile}"));
+        }
+        counts[kind] += 1;
+        if counts[kind] > 4 {
+            return Err(format!("more than four tiles of kind {tile}"));
+        }
+    }
+    Ok(shanten(&counts))
+}
+
+/// Shanten of an arbitrary 14-tile hand, e.g. one restored from a share URL.
+#[wasm_bindgen]
+pub fn evaluate(tiles: &[u8]) -> Result<i8, JsError> {
+    evaluate_hand(tiles).map_err(|message| JsError::new(&message))
+}
+
 #[wasm_bindgen]
 pub struct SimResult {
     deals: u32,
@@ -210,6 +234,27 @@ mod tests {
         // 123m456p789s11z225z: tenpai after discarding 5z (shanpon wait)
         let tenpai = counts_from(&[0, 1, 2, 12, 13, 14, 24, 25, 26, 27, 27, 28, 28, 31]);
         assert_eq!(shanten(&tenpai), 0);
+    }
+
+    #[test]
+    fn evaluate_hand_scores_known_hands() {
+        let win = [0, 1, 2, 12, 13, 14, 24, 25, 26, 27, 27, 28, 28, 28];
+        assert_eq!(evaluate_hand(&win), Ok(-1));
+
+        let tenpai = [0, 1, 2, 12, 13, 14, 24, 25, 26, 27, 27, 28, 28, 31];
+        assert_eq!(evaluate_hand(&tenpai), Ok(0));
+    }
+
+    #[test]
+    fn evaluate_hand_rejects_invalid_input() {
+        assert!(evaluate_hand(&[0; 13]).is_err());
+        assert!(evaluate_hand(&[0; 15]).is_err());
+
+        let out_of_range = [0, 1, 2, 12, 13, 14, 24, 25, 26, 27, 27, 28, 28, NUM_KINDS as u8];
+        assert!(evaluate_hand(&out_of_range).is_err());
+
+        let five_of_a_kind = [0, 0, 0, 0, 0, 1, 2, 12, 13, 14, 24, 25, 26, 27];
+        assert!(evaluate_hand(&five_of_a_kind).is_err());
     }
 
     #[test]

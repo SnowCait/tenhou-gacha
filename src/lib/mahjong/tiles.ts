@@ -99,6 +99,10 @@ export function tileLabel(kind: number): string {
 	return LABELS[kind];
 }
 
+// Unicode mahjong tiles (U+1F000 block) per suit: man, pin, sou, honors.
+const EMOJI_BASE = [0x1f007, 0x1f019, 0x1f010] as const;
+const HONOR_EMOJI = [0x1f000, 0x1f001, 0x1f002, 0x1f003, 0x1f006, 0x1f005, 0x1f004] as const;
+
 /** Compact mpsz notation, e.g. [0,1,2,12,13,14,24,25,26,27,27,28,28,28] → "123m456p789s11222z". */
 export function toMpsz(tiles: readonly number[]): string {
 	for (const tile of tiles) assertTileKind(tile);
@@ -112,4 +116,44 @@ export function toMpsz(tiles: readonly number[]): string {
 		if (digits) out += digits + letter;
 	}
 	return out;
+}
+
+/** Inverse of toMpsz. Returns sorted tile kinds, or null if the text is not valid mpsz. */
+export function fromMpsz(text: string): number[] | null {
+	const groups = [...text.matchAll(/(\d+)([mpsz])/g)];
+	if (groups.map((group) => group[0]).join('') !== text || text === '') return null;
+	const tiles: number[] = [];
+	for (const [, digits, letter] of groups) {
+		const suit = 'mpsz'.indexOf(letter);
+		for (const digit of digits) {
+			const n = Number(digit);
+			if (n < 1 || (suit === 3 && n > 7)) return null;
+			tiles.push(suit * 9 + n - 1);
+		}
+	}
+	return tiles.sort((a, b) => a - b);
+}
+
+/** Parses mpsz text as a full 14-tile hand (at most 4 of each kind), or null if invalid. */
+export function parseHandMpsz(text: string): number[] | null {
+	const tiles = fromMpsz(text);
+	if (!tiles || tiles.length !== HAND_SIZE) return null;
+	const counts = new Array<number>(NUM_TILE_KINDS).fill(0);
+	for (const tile of tiles) {
+		if (++counts[tile] > 4) return null;
+	}
+	return tiles;
+}
+
+/** Unicode mahjong tile characters, sorted, e.g. → "🀇🀈🀉🀜🀝🀞🀖🀗🀘🀀🀀🀁🀁🀁". */
+export function toEmoji(tiles: readonly number[]): string {
+	for (const tile of tiles) assertTileKind(tile);
+	return [...tiles]
+		.sort((a, b) => a - b)
+		.map((tile) =>
+			String.fromCodePoint(
+				tile < 27 ? EMOJI_BASE[Math.floor(tile / 9)] + (tile % 9) : HONOR_EMOJI[tile - 27]
+			)
+		)
+		.join('');
 }

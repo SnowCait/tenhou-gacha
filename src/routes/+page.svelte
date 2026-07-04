@@ -1,10 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { replaceState } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import type { Pathname } from '$app/types';
 	import { m } from '$lib/paraglide/messages.js';
 	import Hand from '$lib/components/Hand.svelte';
 	import ShantenChart from '$lib/components/ShantenChart.svelte';
+	import ShareButtons from '$lib/components/ShareButtons.svelte';
 	import TenhouOverlay from '$lib/components/TenhouOverlay.svelte';
+	import { parseHandMpsz, toEmoji } from '$lib/mahjong/tiles';
+	import { handShareUrl, pageShareUrl } from '$lib/share';
 	import {
 		MAX_DEALS,
 		type SimRequest,
@@ -30,12 +36,16 @@
 	let resultVisible = $state(false);
 	let celebrate = $state(false);
 
+	type FinishedRun = SimStats & { winners: number[][]; stopped: boolean; mode: SimulationMode };
+
 	let mode: SimulationMode = $state('untilWin');
 	let fixedCount = $state(1_000_000);
 	let running = $state(false);
 	let runTarget: number | null = $state(null);
+	// Mode captured at run start, so toggling the radio afterwards cannot relabel the result.
+	let runMode: SimulationMode = 'untilWin';
 	let progress: SimStats | null = $state(null);
-	let simResult: (SimStats & { winners: number[][]; stopped: boolean }) | null = $state(null);
+	let simResult: FinishedRun | null = $state(null);
 
 	onMount(() => {
 		let disposed = false;
@@ -59,6 +69,7 @@
 		switch (message.type) {
 			case 'ready':
 				engineReady = true;
+				loadHandFromUrl();
 				break;
 			case 'dealt':
 				hand = message.tiles;
@@ -82,7 +93,8 @@
 					shantenCounts: message.shantenCounts,
 					tenhouCount: message.tenhouCount,
 					winners: message.winners,
-					stopped: message.stopped
+					stopped: message.stopped,
+					mode: runMode
 				};
 				break;
 			case 'error':
@@ -93,11 +105,24 @@
 		}
 	}
 
+	/** Replays a hand from a share URL (?hand=123m456p789s11222z) through the normal deal flow. */
+	function loadHandFromUrl(): void {
+		const tiles = parseHandMpsz(page.url.searchParams.get('hand') ?? '');
+		if (!tiles) return;
+		dealing = true;
+		send({ type: 'evaluate', tiles });
+	}
+
 	function dealHand(): void {
 		if (dealing || running) return;
 		dealing = true;
 		resultVisible = false;
 		celebrate = false;
+		if (page.url.searchParams.has('hand')) {
+			const url = new URL(page.url);
+			url.searchParams.delete('hand');
+			replaceState(resolve((url.pathname + url.search) as Pathname), {});
+		}
 		if (page.url.searchParams.has('tenhou')) {
 			handleMessage({ type: 'dealt', tiles: DEBUG_TENHOU_HAND, shanten: -1 });
 			return;
@@ -108,6 +133,7 @@
 	function startSimulation(): void {
 		if (running || dealing) return;
 		running = true;
+		runMode = mode;
 		simResult = null;
 		progress = null;
 		const maxDeals = Math.min(Math.max(Math.trunc(fixedCount) || 1, 1), MAX_DEALS);
@@ -123,6 +149,26 @@
 		if (shanten === -1) return m.shanten_win();
 		if (shanten === 0) return m.shanten_tenpai();
 		return m.shanten_n({ n: shanten });
+	}
+
+	function dealShareText(tiles: readonly number[], shanten: number): string {
+		const hand = toEmoji(tiles);
+		if (shanten === -1) return m.share_deal_tenhou_text({ hand });
+		return m.share_deal_text({ hand, result: shantenText(shanten) });
+	}
+
+	function simShareText(result: FinishedRun): string {
+		const deals = result.deals.toLocaleString();
+		if (result.tenhouCount === 0) return m.share_sim_text({ deals });
+		const hand = toEmoji(result.winners[0]);
+		if (result.mode === 'untilWin') return m.share_sim_until_tenhou_text({ deals, hand });
+		return m.share_sim_tenhou_text({ deals, tenhou: result.tenhouCount.toLocaleString(), hand });
+	}
+
+	function simShareUrl(result: FinishedRun): string {
+		return result.tenhouCount > 0
+			? handShareUrl(page.url, result.winners[0])
+			: pageShareUrl(page.url);
 	}
 
 	function formatSpeed(stats: SimStats): string {
@@ -177,6 +223,12 @@
 				{shantenText(handShanten)}
 			{/if}
 		</p>
+
+		<div class="mt-2 flex min-h-10 justify-center">
+			{#if resultVisible && hand}
+				<ShareButtons text={dealShareText(hand, handShanten)} url={handShareUrl(page.url, hand)} />
+			{/if}
+		</div>
 
 		<div class="mt-4 flex justify-center">
 			<button
@@ -299,6 +351,8 @@
 						</dd>
 					</div>
 				</dl>
+
+				<ShareButtons text={simShareText(simResult)} url={simShareUrl(simResult)} />
 
 				{#if simResult.winners.length > 0}
 					<div>
