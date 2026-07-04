@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { m } from '$lib/paraglide/messages.js';
 	import Hand from '$lib/components/Hand.svelte';
 	import ShantenChart from '$lib/components/ShantenChart.svelte';
@@ -97,7 +98,7 @@
 		dealing = true;
 		resultVisible = false;
 		celebrate = false;
-		if (new URLSearchParams(location.search).has('tenhou')) {
+		if (page.url.searchParams.has('tenhou')) {
 			handleMessage({ type: 'dealt', tiles: DEBUG_TENHOU_HAND, shanten: -1 });
 			return;
 		}
