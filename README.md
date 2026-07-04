@@ -1,42 +1,47 @@
-# sv
+# 天和ガチャ
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+親の配牌 14 枚をランダムに引いて、約 33 万分の 1 の奇跡「天和」を狙う Web アプリ。
 
-## Creating a project
+## 機能
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **配牌**: ボタンを押すとランダムに 14 枚配牌し、向聴数を表示。天和(和了形)なら演出が発動。
+- **配牌を繰り返す**: 「天和になるまで」または「指定回数まで」(最大 1 億回)配牌を高速に繰り返し、試行回数・天和回数(とその手牌)・向聴数分布を表示。
 
-```sh
-# create a new project
-npx sv create my-app
-```
+## 技術構成
 
-To recreate this project with the same configuration:
+- [SvelteKit](https://svelte.dev/docs/kit) (adapter-static) + Tailwind CSS v4 + [Paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) (日本語 / English)
+- 配牌と向聴数計算のホットループは Rust 製 Wasm(約 300〜400 万配牌/秒)
+  - 向聴数計算: [xiangting](https://github.com/Apricot-S/xiangting) (MIT)
+  - Web Worker 上でチャンク実行し、進捗表示と停止に対応
+- 牌画像: [FluffyStuff/riichi-mahjong-tiles](https://github.com/FluffyStuff/riichi-mahjong-tiles) (CC0)
 
-```sh
-# recreate this project
-npx sv@0.16.1 create --template minimal --types ts --add prettier eslint vitest="usages:unit,component" playwright tailwindcss="plugins:none" sveltekit-adapter="adapter:static" paraglide="languageTags:en, jp+demo:no" --install npm ./
-```
+## セットアップ
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Node.js 22+ と Rust(stable)が必要。
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+rustup target add wasm32-unknown-unknown
+npm install
 ```
 
-## Building
+wasm-pack は devDependency として入るため個別インストールは不要。
 
-To create a production version of your app:
+## 開発
 
 ```sh
-npm run build
+npm run dev        # Wasm をビルドして開発サーバーを起動
+npm run build      # 本番ビルド (build/ に静的サイトを出力)
+npm run preview    # 本番ビルドをプレビュー
 ```
 
-You can preview the production build with `npm run preview`.
+## テスト
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```sh
+cargo test --manifest-path wasm/Cargo.toml   # Rust ユニットテスト
+npm run test:unit -- --run                   # vitest (ロジック + コンポーネント)
+npm run test:e2e                             # Playwright E2E
+npm run lint && npm run check
+```
+
+Playwright がブラウザをダウンロードできない環境では、環境変数
+`PLAYWRIGHT_CHROMIUM_PATH` に既存の Chromium 実行ファイルを指定するとそれを使用する。
