@@ -36,12 +36,16 @@
 	let resultVisible = $state(false);
 	let celebrate = $state(false);
 
+	type FinishedRun = SimStats & { winners: number[][]; stopped: boolean; mode: SimulationMode };
+
 	let mode: SimulationMode = $state('untilWin');
 	let fixedCount = $state(1_000_000);
 	let running = $state(false);
 	let runTarget: number | null = $state(null);
+	// Mode captured at run start, so toggling the radio afterwards cannot relabel the result.
+	let runMode: SimulationMode = 'untilWin';
 	let progress: SimStats | null = $state(null);
-	let simResult: (SimStats & { winners: number[][]; stopped: boolean }) | null = $state(null);
+	let simResult: FinishedRun | null = $state(null);
 
 	onMount(() => {
 		let disposed = false;
@@ -89,7 +93,8 @@
 					shantenCounts: message.shantenCounts,
 					tenhouCount: message.tenhouCount,
 					winners: message.winners,
-					stopped: message.stopped
+					stopped: message.stopped,
+					mode: runMode
 				};
 				break;
 			case 'error':
@@ -128,6 +133,7 @@
 	function startSimulation(): void {
 		if (running || dealing) return;
 		running = true;
+		runMode = mode;
 		simResult = null;
 		progress = null;
 		const maxDeals = Math.min(Math.max(Math.trunc(fixedCount) || 1, 1), MAX_DEALS);
@@ -143,6 +149,26 @@
 		if (shanten === -1) return m.shanten_win();
 		if (shanten === 0) return m.shanten_tenpai();
 		return m.shanten_n({ n: shanten });
+	}
+
+	function dealShareText(tiles: readonly number[], shanten: number): string {
+		const hand = toEmoji(tiles);
+		if (shanten === -1) return m.share_deal_tenhou_text({ hand });
+		return m.share_deal_text({ hand, result: shantenText(shanten) });
+	}
+
+	function simShareText(result: FinishedRun): string {
+		const deals = result.deals.toLocaleString();
+		if (result.tenhouCount === 0) return m.share_sim_text({ deals });
+		const hand = toEmoji(result.winners[0]);
+		if (result.mode === 'untilWin') return m.share_sim_until_tenhou_text({ deals, hand });
+		return m.share_sim_tenhou_text({ deals, tenhou: result.tenhouCount.toLocaleString(), hand });
+	}
+
+	function simShareUrl(result: FinishedRun): string {
+		return result.tenhouCount > 0
+			? handShareUrl(page.url, result.winners[0])
+			: pageShareUrl(page.url);
 	}
 
 	function formatSpeed(stats: SimStats): string {
@@ -200,10 +226,7 @@
 
 		<div class="mt-2 flex min-h-10 justify-center">
 			{#if resultVisible && hand}
-				<ShareButtons
-					text={m.share_deal_text({ hand: toEmoji(hand), result: shantenText(handShanten) })}
-					url={handShareUrl(page.url, hand)}
-				/>
+				<ShareButtons text={dealShareText(hand, handShanten)} url={handShareUrl(page.url, hand)} />
 			{/if}
 		</div>
 
@@ -329,18 +352,7 @@
 					</div>
 				</dl>
 
-				<ShareButtons
-					text={simResult.tenhouCount > 0
-						? m.share_sim_tenhou_text({
-								deals: simResult.deals.toLocaleString(),
-								tenhou: simResult.tenhouCount.toLocaleString(),
-								hand: toEmoji(simResult.winners[0])
-							})
-						: m.share_sim_text({ deals: simResult.deals.toLocaleString() })}
-					url={simResult.tenhouCount > 0
-						? handShareUrl(page.url, simResult.winners[0])
-						: pageShareUrl(page.url)}
-				/>
+				<ShareButtons text={simShareText(simResult)} url={simShareUrl(simResult)} />
 
 				{#if simResult.winners.length > 0}
 					<div>

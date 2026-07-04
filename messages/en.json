@@ -30,7 +30,9 @@
 	"share_native": "Share",
 	"share_copy": "Copy",
 	"share_copied": "Copied!",
-	"share_deal_text": "My starting hand: {hand} — {result} #TenhouGacha",
+	"share_deal_text": "{result} — {hand} #TenhouGacha",
+	"share_deal_tenhou_text": "Tenhou!! {hand} #TenhouGacha",
 	"share_sim_tenhou_text": "{deals} deals, {tenhou} tenhou! {hand} #TenhouGacha",
+	"share_sim_until_tenhou_text": "Tenhou after {deals} deals!! {hand} #TenhouGacha",
 	"share_sim_text": "{deals} deals, no tenhou this time… #TenhouGacha"
 }

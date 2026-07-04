@@ -50,7 +50,22 @@ test('shows share buttons with an X intent link after a deal', async ({ page }) 
 	await expect(shareLink).toBeVisible({ timeout: 5_000 });
 	const href = await shareLink.getAttribute('href');
 	expect(href).toContain('x.com/intent/post');
+	expect(href).toContain(encodeURIComponent('天和を引きました！！'));
 	expect(href).toContain(encodeURIComponent('hand=123m456p789s11222z'));
+});
+
+test('shares the winning deal number after an until-tenhou run', async ({ page }) => {
+	await page.goto('/');
+	await expect(page.getByRole('button', { name: '配牌' })).toBeEnabled({ timeout: 15_000 });
+
+	await page.getByRole('radio', { name: '天和になるまで' }).check();
+	await page.getByRole('button', { name: '実行' }).click();
+
+	const result = page.getByTestId('sim-result');
+	await expect(result).toBeVisible({ timeout: 30_000 });
+	const href = await result.getByRole('link', { name: 'Xでポスト' }).getAttribute('href');
+	expect(href).toContain(encodeURIComponent('回目の配牌で天和が出ました！！'));
+	expect(href).toContain(encodeURIComponent('hand='));
 });
 
 test('runs a fixed-count simulation and reports stats', async ({ page }) => {

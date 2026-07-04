@@ -31,6 +31,8 @@
 	"share_copy": "コピー",
 	"share_copied": "コピーしました",
 	"share_deal_text": "天和ガチャの結果は「{result}」でした！ {hand} #天和ガチャ",
+	"share_deal_tenhou_text": "天和ガチャで天和を引きました！！ {hand} #天和ガチャ",
 	"share_sim_tenhou_text": "{deals}回配牌して天和{tenhou}回！ {hand} #天和ガチャ",
+	"share_sim_until_tenhou_text": "{deals}回目の配牌で天和が出ました！！ {hand} #天和ガチャ",
 	"share_sim_text": "{deals}回配牌したけど天和は出ませんでした… #天和ガチャ"
 }
