@@ -25,6 +25,5 @@
 	"sim_stopped": "停止しました",
 	"sim_no_tenhou": "天和は出ませんでした…",
 	"sim_tenhou_found": "天和が出ました!",
-	"error_prefix": "エラー: ",
-	"credits_tiles": "牌画像: FluffyStuff/riichi-mahjong-tiles (CC0)"
+	"error_prefix": "エラー: "
 }

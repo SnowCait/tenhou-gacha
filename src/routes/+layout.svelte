@@ -2,7 +2,6 @@
 	import type { Pathname } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { m } from '$lib/paraglide/messages.js';
 	import { getLocale, locales, localizeHref } from '$lib/paraglide/runtime';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
@@ -32,11 +31,11 @@
 	</nav>
 	<p>
 		<a
-			href="https://github.com/FluffyStuff/riichi-mahjong-tiles"
+			href="https://github.com/SnowCait/tenhou-gacha"
 			class="hover:text-emerald-50/80"
 			rel="external noopener"
 		>
-			{m.credits_tiles()}
+			GitHub
 		</a>
 	</p>
 </footer>

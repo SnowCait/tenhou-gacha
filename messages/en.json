@@ -25,6 +25,5 @@
 	"sim_stopped": "Stopped",
 	"sim_no_tenhou": "No tenhou this time…",
 	"sim_tenhou_found": "Tenhou!",
-	"error_prefix": "Error: ",
-	"credits_tiles": "Tile art: FluffyStuff/riichi-mahjong-tiles (CC0)"
+	"error_prefix": "Error: "
 }
