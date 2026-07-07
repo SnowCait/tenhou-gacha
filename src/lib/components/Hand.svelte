@@ -5,14 +5,26 @@
 	let {
 		tiles,
 		animate = false,
-		small = false
-	}: { tiles: readonly number[]; animate?: boolean; small?: boolean } = $props();
+		small = false,
+		faceDown = false
+	}: {
+		tiles: readonly number[];
+		animate?: boolean;
+		small?: boolean;
+		faceDown?: boolean;
+	} = $props();
 </script>
 
 <div class="hand" class:small>
 	{#each tiles as kind, i (i)}
-		{#if animate}
-			<span class="flip" style="animation-delay: {i * 55}ms">
+		{#if faceDown}
+			<span class="flip static">
+				<span class="side back">
+					<img src="{base}/tiles/Back.svg" alt="" draggable="false" />
+				</span>
+			</span>
+		{:else if animate}
+			<span class="flip" style="--delay: {i * 55}ms">
 				<span class="side back">
 					<img src="{base}/tiles/Back.svg" alt="" draggable="false" />
 				</span>
@@ -29,7 +41,6 @@
 		--tile-w: clamp(1.15rem, 6vw, 2.75rem);
 		display: flex;
 		gap: clamp(1px, 0.4vw, 5px);
-		perspective: 800px;
 	}
 
 	.hand.small {
@@ -40,16 +51,30 @@
 		position: relative;
 		display: block;
 		width: var(--tile-w);
+		min-width: 0;
 		aspect-ratio: 3 / 4;
-		transform-style: preserve-3d;
-		animation: flip-in 480ms ease-out both;
+	}
+
+	/* Dealt hand: back/front cross-fade in place, no rotation. */
+	.flip:not(.static) .side.back {
+		animation: reveal-fade-out 480ms ease-out var(--delay, 0ms) both;
+	}
+
+	.flip:not(.static) .side.front {
+		animation: reveal-fade-in 480ms ease-out var(--delay, 0ms) both;
 	}
 
 	.side {
 		position: absolute;
 		inset: 0;
-		backface-visibility: hidden;
-		-webkit-backface-visibility: hidden;
+	}
+
+	.side.back {
+		opacity: 1;
+	}
+
+	.side.front {
+		opacity: 0;
 	}
 
 	.side.back img {
@@ -58,23 +83,37 @@
 		filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.35));
 	}
 
-	.side.front {
-		transform: rotateY(180deg);
+	@keyframes reveal-fade-out {
+		0%,
+		40% {
+			opacity: 1;
+		}
+		60%,
+		100% {
+			opacity: 0;
+		}
 	}
 
-	@keyframes flip-in {
-		from {
-			transform: rotateY(0deg);
+	@keyframes reveal-fade-in {
+		0%,
+		40% {
+			opacity: 0;
 		}
-		to {
-			transform: rotateY(180deg);
+		60%,
+		100% {
+			opacity: 1;
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.flip {
+		.flip:not(.static) .side.back {
 			animation: none;
-			transform: rotateY(180deg);
+			opacity: 0;
+		}
+
+		.flip:not(.static) .side.front {
+			animation: none;
+			opacity: 1;
 		}
 	}
 </style>
