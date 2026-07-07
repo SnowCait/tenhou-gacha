@@ -9,7 +9,7 @@
 	import ShantenChart from '$lib/components/ShantenChart.svelte';
 	import ShareButtons from '$lib/components/ShareButtons.svelte';
 	import TenhouOverlay from '$lib/components/TenhouOverlay.svelte';
-	import { parseHandMpsz, toEmoji } from '$lib/mahjong/tiles';
+	import { HAND_SIZE, parseHandMpsz, toEmoji } from '$lib/mahjong/tiles';
 	import { handShareUrl, pageShareUrl } from '$lib/share';
 	import {
 		MAX_DEALS,
@@ -202,15 +202,17 @@
 	<section
 		class="rounded-2xl border border-white/10 bg-felt-800 p-5 shadow-xl shadow-black/30 sm:p-8"
 	>
-		<div class="flex min-h-24 items-center justify-center">
+		<div class="-mx-3 flex min-h-24 items-center justify-center">
 			{#if hand}
 				{#key dealId}
-					<div data-testid="main-hand">
+					<div class="min-w-0" data-testid="main-hand">
 						<Hand tiles={hand} animate />
 					</div>
 				{/key}
 			{:else}
-				<p class="text-emerald-50/50">···</p>
+				<div class="min-w-0">
+					<Hand tiles={Array(HAND_SIZE).fill(0)} faceDown />
+				</div>
 			{/if}
 		</div>
 
