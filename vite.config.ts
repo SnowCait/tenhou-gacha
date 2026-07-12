@@ -9,6 +9,14 @@ import { sveltekit } from '@sveltejs/kit/vite';
 // download its own (e.g. sandboxed CI).
 const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
 
+// GitHub Pages serves the app from a repository sub-path (e.g. /tenhou-gacha).
+// The base path is empty for local development and set by CI at build time.
+// Normalize to SvelteKit's `paths.base` rules: empty when unset, otherwise
+// leading `/` and no trailing `/`.
+const rawBasePath = process.env.BASE_PATH ?? '';
+const basePath: '' | `/${string}` =
+	rawBasePath === '' ? '' : `/${rawBasePath.replace(/^\/+|\/+$/g, '')}`;
+
 export default defineConfig({
 	plugins: [
 		tailwindcss(),
@@ -18,12 +26,30 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			adapter: adapter()
+			adapter: adapter({
+				fallback: '404.html'
+			}),
+			paths: {
+				base: basePath
+			}
 		}),
 		paraglideVitePlugin({
 			project: './project.inlang',
 			outdir: './src/lib/paraglide',
-			strategy: ['url', 'baseLocale']
+			strategy: ['url', 'baseLocale'],
+			// Teach Paraglide about the GitHub Pages base path so locale detection,
+			// de-localization (reroute) and localized link generation all account
+			// for it. Mirrors Paraglide's default pattern with basePath inserted
+			// before the locale segment; basePath is empty for local development.
+			urlPatterns: [
+				{
+					pattern: `:protocol://:domain(.*)::port?${basePath}/:path(.*)?`,
+					localized: [
+						['en', `:protocol://:domain(.*)::port?${basePath}/en/:path(.*)?`],
+						['jp', `:protocol://:domain(.*)::port?${basePath}/:path(.*)?`]
+					]
+				}
+			]
 		})
 	],
 	test: {

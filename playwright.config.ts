@@ -7,5 +7,8 @@ const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
 export default defineConfig({
 	webServer: { command: 'npm run build && npm run preview', port: 4173 },
 	testMatch: '**/*.e2e.{ts,js}',
+	// The GitHub Pages base-path suite builds with a different BASE_PATH and runs
+	// from playwright.base.config.ts.
+	testIgnore: '**/*.base.e2e.{ts,js}',
 	use: chromiumPath ? { launchOptions: { executablePath: chromiumPath } } : {}
 });

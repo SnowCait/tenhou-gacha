@@ -16,8 +16,9 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run && npm run test:e2e",
-		"test:e2e": "playwright install && playwright test"
+		"test": "npm run test:unit -- --run && npm run test:e2e && npm run test:e2e:base",
+		"test:e2e": "playwright install && playwright test",
+		"test:e2e:base": "playwright install && playwright test --config playwright.base.config.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
