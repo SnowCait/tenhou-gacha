@@ -165,10 +165,8 @@
 		return m.share_sim_tenhou_text({ deals, tenhou: result.tenhouCount.toLocaleString(), hand });
 	}
 
-	function simShareUrl(result: FinishedRun): string {
-		return result.tenhouCount > 0
-			? handShareUrl(page.url, result.winners[0])
-			: pageShareUrl(page.url);
+	function simShareUrl(): string {
+		return pageShareUrl(page.url);
 	}
 
 	function formatSpeed(stats: SimStats): string {
@@ -354,7 +352,7 @@
 					</div>
 				</dl>
 
-				<ShareButtons text={simShareText(simResult)} url={simShareUrl(simResult)} />
+				<ShareButtons text={simShareText(simResult)} url={simShareUrl()} />
 
 				{#if simResult.winners.length > 0}
 					<div>

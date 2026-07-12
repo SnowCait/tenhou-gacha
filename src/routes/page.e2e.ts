@@ -65,7 +65,11 @@ test('shares the winning deal number after an until-tenhou run', async ({ page }
 	await expect(result).toBeVisible({ timeout: 30_000 });
 	const href = await result.getByRole('link', { name: 'Xでポスト' }).getAttribute('href');
 	expect(href).toContain(encodeURIComponent('回目の配牌で天和が出ました！！'));
-	expect(href).toContain(encodeURIComponent('hand='));
+
+	const intentUrl = new URL(href!);
+	const sharedUrl = new URL(intentUrl.searchParams.get('url')!);
+	expect(sharedUrl.search).toBe('');
+	expect(sharedUrl.searchParams.has('hand')).toBe(false);
 });
 
 test('runs a fixed-count simulation and reports stats', async ({ page }) => {
